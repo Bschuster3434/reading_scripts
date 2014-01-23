@@ -49,8 +49,3 @@ def get_script_details_table(soup):
 
 
 
-def open_links():	
-	with open("script_links.txt", "r") as file:
-		data = file.readlines()
-		links = [i[:-1] for i in data]
-	return links
