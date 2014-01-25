@@ -4,9 +4,6 @@ import pandas as pd
 def open_meta_links():
 	return pd.read_csv('meta_links_id.csv', names = ['id', 'page_link', 'downloaded_bool'])
 	
-def test_meta():
-	return pd.read_csv('test_meta.csv', names = ['id', 'page_link', 'downloaded_bool'])
-	
 def mark_completed(file, id):
 	new_rows = []
 	
