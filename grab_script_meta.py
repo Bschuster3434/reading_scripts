@@ -84,8 +84,38 @@ def mark_completed(file, id):
 		writer = csv.writer(csv_file2)
 		writer.writerows(new_rows)	
 		
+def write_data_to_csvs(script_id, dict_details):
+	return 1
+	
+		
+def grab_n_script_metas(meta_links, n = None):
+	ids_grabbed = []
+	
+	meta_links = open_meta_links()
+	grab_links = meta_links[meta_links['downloaded_bool'] == 0]
 
-#def test_movie_grab:
+	return grab_links
+	# {'title': clean_title, 'writers' : writers, 'genres' : genres, 'script_url' : script_url, 'script_date' : script_date, 'movie_release_date' : movie_release_date}
+	
+	
+def test_wdtcsv():
+	# {'title': clean_title, 'writers' : writers, 'genres' : genres, 'script_url' : script_url, 'script_date' : script_date, 'movie_release_date' : movie_release_date}
+	script_id = 1
+	meta_link = "http://www.imsdb.com/Movie%20Scripts/10%20Things%20I%20Hate%20About%20You%20Script.html"
+	binary = 0
+	
+	details_list = {'script_id' : script_id, 'meta_link' : meta_link, 'binary' : binary}
+	
+	meta_dict = grab_script_meta(details_list['meta_link'])
+
+	return meta_dict
+	
+	
+	
+	
+	
+	
+	
 	
 
 
