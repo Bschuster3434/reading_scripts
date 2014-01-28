@@ -2,6 +2,10 @@ import urllib2
 from BeautifulSoup import BeautifulSoup
 import pandas as pd
 import csv
+import itertools
+from random import sample, randint
+import time
+
 
 def grab_script_meta(meta_url):
 	"""
@@ -15,8 +19,9 @@ def grab_script_meta(meta_url):
 	
 	writer_genre_scripts = script_details_table.findAll('a')
 	
-	writers = [ i.contents[0] for i in writer_genre_scripts if i['href'].find('writer') != -1]
-	genres = [ i.contents[0] for i in writer_genre_scripts if i['href'].find('genre') != -1]
+	writers = [ i.contents[0] for i in writer_genre_scripts if i['href'].find('writer') != -1 and i.contents != []]
+	genres = [ i.contents[0] for i in writer_genre_scripts if i['href'].find('genre') != -1 and i.contents != []]
+	
 	script_url = "http://www.imsdb.com/" + [ i.get('href') for i in writer_genre_scripts if i['href'].find('scripts') != -1][0]
 	
 	sdt_string = str(script_details_table)
@@ -67,16 +72,19 @@ def open_meta_links():
 	return pd.read_csv('meta_links_id.csv', names = ['id', 'page_link', 'downloaded_bool'])		
 			
 
-def mark_completed(file, id):
+def mark_completed(id):
 	"""
 	Takes a csv file and list of Id's and alters the csv to mark the movie as 'collected'
 	"""
+	
+	file = 'meta_links_id.csv'
+	
 	new_rows = []
 	
 	with open(file, 'rb') as csv_file:
 		reader = csv.reader(csv_file)
 		for row in reader:
-			if int(row[0]) in id:
+			if int(row[0]) == int(id):
 				row[2] = 1
 			new_rows.append(row)
 	
@@ -84,31 +92,74 @@ def mark_completed(file, id):
 		writer = csv.writer(csv_file2)
 		writer.writerows(new_rows)	
 		
-def write_data_to_csvs(script_id, dict_details):
-	return 1
-	
+def write_data_to_csvs(script_id, dict):
+	"""
+	Writes all the relevant values for the correct scripts and tells meta_links_id.csv that the script has been downloaded
+	"""
+	if dict['genres'] == None: raise Exception( str(script_id) + ' has not genre.' )
+	elif dict['writers'] == None: raise Exception( str(script_id) + ' has no writers.' )
 		
-def grab_n_script_metas(meta_links, n = None):
-	ids_grabbed = []
+	
+	script_list = [[script_id, dict['title'], dict['movie_release_date'], dict['script_date'], dict['script_url']]]
+	genres_list = list(itertools.product(*[[script_id], dict['genres']]))
+	writers_list = list(itertools.product(*[[script_id], dict['writers']]))
+	
+	with open('script.csv', 'ab') as script_file:
+		writer = csv.writer(script_file)
+		for row in script_list:
+			writer.writerow(row)
+		
+	with open('genres.csv', 'ab') as script_file:
+		writer = csv.writer(script_file)
+		for row in genres_list:
+			writer.writerow(row)
+	
+	with open('writers.csv', 'ab') as script_file:
+		writer = csv.writer(script_file)
+		for row in writers_list:
+			writer.writerow(row)
+	
+	mark_completed(script_id)
+	
+	print str(script_id) + " has been written into files."
+		
+def grab_n_script_metas(n = 2):
+	"""
+	Grabs a random number of scripts defined by 'n'. Defaults to 1.
+	"""
 	
 	meta_links = open_meta_links()
 	grab_links = meta_links[meta_links['downloaded_bool'] == 0]
-
-	return grab_links
+	n_links = sample(grab_links.index, n)
+	
+	curr_links = grab_links.ix[n_links]
+	
+	for index, row in curr_links.iterrows():
+		script_id = row['id']
+		script_url = row['page_link']
+		
+		print "Now on " + str(script_id)
+		
+		meta_dict = grab_script_meta(script_url)
+		
+		write_data_to_csvs(script_id, meta_dict)
+		
+		wait_seconds = randint(2, 6)
+		time.sleep(wait_seconds)
+		
 	# {'title': clean_title, 'writers' : writers, 'genres' : genres, 'script_url' : script_url, 'script_date' : script_date, 'movie_release_date' : movie_release_date}
 	
 	
 def test_wdtcsv():
 	# {'title': clean_title, 'writers' : writers, 'genres' : genres, 'script_url' : script_url, 'script_date' : script_date, 'movie_release_date' : movie_release_date}
-	script_id = 1
-	meta_link = "http://www.imsdb.com/Movie%20Scripts/10%20Things%20I%20Hate%20About%20You%20Script.html"
-	binary = 0
 	
 	details_list = {'script_id' : script_id, 'meta_link' : meta_link, 'binary' : binary}
 	
 	meta_dict = grab_script_meta(details_list['meta_link'])
 
-	return meta_dict
+	write_data_to_csvs(script_id, meta_dict)
+
+	return "Test Completed"
 	
 	
 	
