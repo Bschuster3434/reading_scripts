@@ -13,7 +13,7 @@ def return_clean_script(script_url):
 	clean_text = text_cleaner(dirty_text)
 	result = is_text_clean(clean_text)
 	
-	if result == True:
+	if result == True and len(clean_text) > 1000:
 		return clean_text
 	else:
 		return None
@@ -98,6 +98,7 @@ def test_add_scripts():
 	directory = "test_raw_script"
 	
 	s_df = pd.read_csv(script_file)
+	s_df['Raw_Script_Loc'] = s_df['Raw_Script_Loc'].astype(object)
 	r_row = choice(s_df[ pd.isnull( s_df['Raw_Script_Loc'] ) ].index)
 	
 	script_url = s_df['Raw_Script_URL'].ix[r_row]
@@ -110,8 +111,9 @@ def test_add_scripts():
 		with open(write_file, 'w') as w_file:
 			w_file.write(c_script)
 		s_df['Raw_Script_Loc'].ix[r_row] = write_file
-		s_df.to_csv(script_file)
+		s_df.to_csv(script_file, index = False)
 	else:
+		s_df['Raw_Script_Loc'].ix[r_row] = "unclean"
 		print "Did not pass clean test"
 		
 			
