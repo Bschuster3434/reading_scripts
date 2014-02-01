@@ -121,7 +121,7 @@ def test_add_scripts():
 		print "Did not pass clean test"
 		
 def add_scripts():
-	script_file = "script.csv"
+	script_file = "replace_script_values.csv"
 	directory = 'raw_Script'
 	
 	s_df = pd.read_csv(script_file)
