@@ -7,11 +7,19 @@ r_file = 'rotten_ids.csv'
 r_df = pd.read_csv('rotten_ids.csv')
 
 
+def append_info_to_csv(df):
+
+	for i in df.index:
+		s_title = df['Script_Title'].ix[i]
+		rt_dict = grab_rt_info(s_title)
+		print s_title, rt_dict
+	
+
 def grab_rt_info(title):
 	"""
 	This function pulls in all the relevant rotten tomatoes information for each movie.
 	Uses the 'Movies Search' api query to movies
-	Search Rotten Tomates API Documentation for more information
+	Search Rotten Tomatoes API Documentation for more information
 	"""
 	api_key = 'beg2csvf5vv2d45tfdqfgegr'
 	url_begin = "http://api.rottentomatoes.com/api/public/v1.0/movies.json?q="
@@ -41,8 +49,14 @@ def grab_rt_info(title):
 	return movie_info
 	
 def title_transform(str):
+	"""
+	Removes the special characters from the title of the movie and replaces them with appropriate characters.
+	For use with RT API string search
+	"""
 	str = str.replace(",", "%2C")
 	str = str.replace(" ", "+")
 	str = str.replace("/", "%2F")
 	str = str.replace(":", "%3A")
 	return str
+	
+	
