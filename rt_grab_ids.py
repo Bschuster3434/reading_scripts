@@ -17,6 +17,10 @@ def open_null_rt_files():
 
 
 def append_info_to_csv(dataframe, head = True):
+	"""
+	Appends the first five values (or the entire sheet) worth of new info from rotten tomatoes
+	to the dataframe passed to the function.
+	"""
 	
 	if head == True:
 		df = dataframe.head()
@@ -85,5 +89,6 @@ def title_transform(str):
 	str = str.replace("/", "%2F")
 	str = str.replace(":", "%3A")
 	return str
-	
-	
+
+
+
