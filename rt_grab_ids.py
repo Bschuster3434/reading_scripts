@@ -1,18 +1,45 @@
 import pandas as pd
 import json
 import urllib2
+import time
 
 r_file = 'rotten_ids.csv'
 
 r_df = pd.read_csv('rotten_ids.csv')
 
+def open_null_rt_files():
+	file = 'rotten_ids.csv'
+	df = pd.read_csv(file)
+	df['rt_title'] = df['rt_title'].astype(str)
+	t_df = df[~pd.isnull(df.rt_id) ]
+	b_df = df[ pd.isnull(df.rt_id) ]
+	return t_df, b_df
 
-def append_info_to_csv(df):
+
+def append_info_to_csv(dataframe, head = True):
+	
+	if head == True:
+		df = dataframe.head()
+	else:
+		df = dataframe
 
 	for i in df.index:
 		s_title = df['Script_Title'].ix[i]
+		print "Now Printing " + s_title
 		rt_dict = grab_rt_info(s_title)
-		print s_title, rt_dict
+		if rt_dict == None:
+			continue
+		try:	
+			df['rt_id'].ix[i] = rt_dict['id']
+			df['rt_year'].ix[i] = rt_dict['year']
+			df['rt_title'].ix[i] = rt_dict['title']
+			df['rt_critics_score'].ix[i] = rt_dict['critics_score']
+			df['rt_audience_score'].ix[i] = rt_dict['audience_score']
+		except ValueError:
+			continue
+
+		time.sleep(.25)
+		
 	
 
 def grab_rt_info(title):
