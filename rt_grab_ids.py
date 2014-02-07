@@ -88,7 +88,36 @@ def title_transform(str):
 	str = str.replace(" ", "+")
 	str = str.replace("/", "%2F")
 	str = str.replace(":", "%3A")
-	return str
+	return str	
 
+def pick_right_title(df):
+	"""
+	Takes a df from the rotten_ids.csv and shows the results from the rt string search.
+	Borrows heavily from grab_rt_info, with the exception that it does not only return the first entry.
+	"""
 
-
+	api_key = 'beg2csvf5vv2d45tfdqfgegr'
+	url_begin = "http://api.rottentomatoes.com/api/public/v1.0/movies.json?q="
+	url_end = "&page_limit=10&page=1&apikey=" ##Needs to be changed so it returns more than 1 entry
+	
+	for i in df.index:
+		
+		title = df['Clean_Script_Title'].ix[i]
+		c_title = title_transform(title)
+	
+		url = url_begin + c_title + url_end + api_key
+	
+		page = json.loads(urllib2.urlopen(url).read())
+	
+		movies = page['movies']
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
