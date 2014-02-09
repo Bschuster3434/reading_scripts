@@ -2,6 +2,7 @@ import pandas as pd
 import json
 import urllib2
 import time
+import sys
 
 r_file = 'rotten_ids.csv'
 
@@ -98,7 +99,7 @@ def pick_right_title(df):
 
 	api_key = 'beg2csvf5vv2d45tfdqfgegr'
 	url_begin = "http://api.rottentomatoes.com/api/public/v1.0/movies.json?q="
-	url_end = "&page_limit=10&page=1&apikey=" ##Needs to be changed so it returns more than 1 entry
+	url_end = "&page_limit=20&page=1&apikey=" ##Needs to be changed so it returns more than 1 entry
 	
 	for i in df.index:
 		
@@ -110,10 +111,25 @@ def pick_right_title(df):
 		page = json.loads(urllib2.urlopen(url).read())
 	
 		movies = page['movies']
-	
-	
-	
-	
+		
+		if len(movies) == 0:
+			print "No Movies for this name"
+			continue
+		
+		else:
+			for m in movies:
+				print "Target Movie Name is: " + title
+				print "Current Dictionary is: "
+				print m
+				print "Title: " + str(m['title'])
+				print "Year: " + str(m['release_dates'])
+				print "Cast: " + str(m['abridged_cast'])
+				entry = raw_input('is this correct?')
+				if entry == 'y' or entry == 'yes':
+					df['rt_id'].ix[i] = m['id']
+					break
+				elif entry == 'b':
+					sys.exit(0)
 	
 	
 	
