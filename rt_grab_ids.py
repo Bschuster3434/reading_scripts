@@ -17,7 +17,7 @@ def open_null_rt_files():
 	return t_df, b_df
 
 
-def append_info_to_csv(dataframe, head = True):
+def append_info_to_csv(dataframe, head = True, by = 'title'):
 	"""
 	Appends the first five values (or the entire sheet) worth of new info from rotten tomatoes
 	to the dataframe passed to the function.
@@ -30,8 +30,16 @@ def append_info_to_csv(dataframe, head = True):
 
 	for i in df.index:
 		s_title = df['Script_Title'].ix[i]
+		rt_id = df['rt_id'].ix[i]
 		print "Now Printing " + s_title
-		rt_dict = grab_rt_info(s_title)
+		#Below if statement decides if we're searching by id or title
+		if by == 'title':
+			rt_dict = grab_rt_info(s_title)
+		elif by == 'id':
+			rt_dict = grab_rt_info(rt_id, by = by)
+		else:
+			raise Exception('by needs to be either "title" or "id"')	
+			
 		if rt_dict == None:
 			continue
 		try:	
@@ -47,28 +55,47 @@ def append_info_to_csv(dataframe, head = True):
 		
 	
 
-def grab_rt_info(title):
+def grab_rt_info(value , by = 'title'):
 	"""
 	This function pulls in all the relevant rotten tomatoes information for each movie.
 	Uses the 'Movies Search' api query to movies
 	Search Rotten Tomatoes API Documentation for more information
 	"""
+	
 	api_key = 'beg2csvf5vv2d45tfdqfgegr'
-	url_begin = "http://api.rottentomatoes.com/api/public/v1.0/movies.json?q="
-	url_end = "&page_limit=1&page=1&apikey="
 	
-	c_title = title_transform(title)
+	if by == 'title':
+		url_begin = "http://api.rottentomatoes.com/api/public/v1.0/movies.json?q="
+		url_end = "&page_limit=1&page=1&apikey="
 	
-	url = url_begin + c_title + url_end + api_key
+		c_title = title_transform(value)
+	
+		url = url_begin + c_title + url_end + api_key
+	
+	if by == 'id':
+		url_begin = "http://api.rottentomatoes.com/api/public/v1.0/movies/"
+		url_end = ".json?apikey="
+		
+		url = url_begin + str(value) + url_end + api_key
+	
+	else:
+		raise Exception('by needs to equal "title" or "id"')
+		sys.exit(0)
 	
 	page = json.loads(urllib2.urlopen(url).read())
-	
-	if page['total'] == 0:
-		return None
-	
 	movie_info = {}
 	
-	movie = page['movies'][0]
+	try:
+		if page['total'] == 0:
+			return None
+	except KeyError:	
+		pass
+		
+	try:
+		movie = page['movies'][0]
+	except KeyError:
+		movie = page
+		
 	movie_info['id'] = movie['id']
 	movie_info['year'] = movie['year']
 	movie_info['title'] = movie['title']
